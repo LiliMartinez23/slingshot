@@ -1,2 +1,1 @@
 # slingshot
-Slingshot
