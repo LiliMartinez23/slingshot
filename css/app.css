@@ -1,0 +1,13 @@
+@import url('buttons.css');
+
+body {
+    background-color: #18181d;
+}
+
+h1 {
+    text-align: center;
+    color: #fff;
+    font-size: 80px;
+    font-family: "Bangers", system-ui;
+    letter-spacing: 2px;
+}
