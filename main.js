@@ -17,7 +17,7 @@ let render = Matter.Render.create({
 let ground = Matter.Bodies.rectangle( 870, 440, 230, 20, { isStatic: true} );
 
 // Ball and Sling
-let ball = Matter.Bodies.circle( 300, 500, 10 );
+let ball = Matter.Bodies.circle( 300, 500, 20 );
 let sling = Matter.Constraint.create({
     pointA: { x: 300, y: 500 },
     bodyB: ball,
@@ -45,8 +45,8 @@ Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
     if ( e.body === ball ) firing = true;
 });
 Matter.Events.on( engine, 'afterUpdate', function() {
-    if ( firing && Math.abs( ball.position.x - 300) < 10 && Math.abs( ball.position.y - 500 ) < 10 ) {
-        ball = Matter.Bodies.circle( 300, 500, 10 );
+    if ( firing && Math.abs( ball.position.x - 300) < 20 && Math.abs( ball.position.y - 500 ) < 20 ) {
+        ball = Matter.Bodies.circle( 300, 500, 20 );
         // Adding new ball after firing
         Matter.World.add( engine.world, ball );
         sling.bodyB = ball;
