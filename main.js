@@ -7,8 +7,8 @@ let render = Matter.Render.create({
     engine: engine,
     options: {
         // Adjusts to all screen sizes
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: 500,
+        height: 500,
         wireframes: false
     }
 });
