@@ -7,14 +7,14 @@ let render = Matter.Render.create({
     engine: engine,
     options: {
         // Adjusts to all screen sizes
-        width: innerWidth,
-        height: innerWidth,
+        width: 1600,
+        height: 500,
         wireframes: false
     }
 });
 
 // Platform
-let ground = Matter.Bodies.rectangle( 1200, 500, 300, 20, { isStatic: true} );
+let ground = Matter.Bodies.rectangle( 1000, 500, 200, 15, { isStatic: true} );
 
 // Ball and Sling
 let ball = Matter.Bodies.circle( 300, 600, 20 );
@@ -35,7 +35,7 @@ let mouseConstraint = Matter.MouseConstraint.create( engine, {
 render.mouse = mouse;
 
 // Stack
-let stack = Matter.Composites.stack( 1100, 270, 4, 4, 0, 0, function( x, y ) {
+let stack = Matter.Composites.stack( 1000, 270, 4, 4, 0, 0, function( x, y ) {
     return Matter.Bodies.polygon( x, y, 8, 30 );
 });
 
