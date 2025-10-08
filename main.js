@@ -7,19 +7,19 @@ let render = Matter.Render.create({
     engine: engine,
     options: {
         // Adjusts to all screen sizes
-        width: 1600,
-        height: 500,
+        width: innerWidth,
+        height: innerHeight,
         wireframes: false
     }
 });
 
 // Platform
-let ground = Matter.Bodies.rectangle( 1000, 500, 300, 15, { isStatic: true} );
+let ground = Matter.Bodies.rectangle( 870, 440, 230, 20, { isStatic: true} );
 
 // Ball and Sling
-let ball = Matter.Bodies.circle( 300, 600, 20 );
+let ball = Matter.Bodies.circle( 300, 500, 10 );
 let sling = Matter.Constraint.create({
-    pointA: { x: 300, y: 600 },
+    pointA: { x: 300, y: 500 },
     bodyB: ball,
     stiffness: 0.05
 });
@@ -35,8 +35,8 @@ let mouseConstraint = Matter.MouseConstraint.create( engine, {
 render.mouse = mouse;
 
 // Stack
-let stack = Matter.Composites.stack( 500, 270, 4, 4, 0, 0, function( x, y ) {
-    return Matter.Bodies.polygon( x, y, 8, 30 );
+let stack = Matter.Composites.stack( 800, 270, 4, 4, 0, 0, function( x, y ) {
+    return Matter.Bodies.polygon( x, y, 8, 20 );
 });
 
 // Firing
@@ -45,8 +45,8 @@ Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
     if ( e.body === ball ) firing = true;
 });
 Matter.Events.on( engine, 'afterUpdate', function() {
-    if ( firing && Math.abs( ball.position.x - 300) < 20 && Math.abs( ball.position.y - 600 ) < 20 ) {
-        ball = Matter.Bodies.circle( 300, 600, 20 );
+    if ( firing && Math.abs( ball.position.x - 300) < 10 && Math.abs( ball.position.y - 500 ) < 10 ) {
+        ball = Matter.Bodies.circle( 300, 500, 10 );
         // Adding new ball after firing
         Matter.World.add( engine.world, ball );
         sling.bodyB = ball;
