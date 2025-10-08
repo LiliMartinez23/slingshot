@@ -14,7 +14,7 @@ let render = Matter.Render.create({
 });
 
 // Platform
-let ground = Matter.Bodies.rectangle( 1000, 500, 200, 15, { isStatic: true} );
+let ground = Matter.Bodies.rectangle( 1000, 500, 300, 15, { isStatic: true} );
 
 // Ball and Sling
 let ball = Matter.Bodies.circle( 300, 600, 20 );
