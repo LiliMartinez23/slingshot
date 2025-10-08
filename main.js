@@ -35,7 +35,7 @@ let mouseConstraint = Matter.MouseConstraint.create( engine, {
 render.mouse = mouse;
 
 // Stack
-let stack = Matter.Composites.stack( 1000, 70, 4, 4, 0, 0, function( x, y ) {
+let stack = Matter.Composites.stack( 1000, 370, 4, 4, 0, 0, function( x, y ) {
     return Matter.Bodies.polygon( x, y, 8, 30 );
 });
 
