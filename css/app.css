@@ -25,7 +25,7 @@ h1 {
 
 /* Stages */
 .stage {
-    position: absolute;
+    position: fixed;
     right: 0px;
     width: 100px;
     height: 100px;
@@ -33,7 +33,7 @@ h1 {
     place-items: center;
 }
 .stage2 {
-    position: absolute;
+    position: fixed;
     left: 0px;
     width: 100px;
     height: 100px;
