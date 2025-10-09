@@ -1,5 +1,6 @@
 @import url('buttons.css');
 @import url('animations.css');
+@import url('winner-modal.css');
 
 body {
     background-color: #18181d;
