@@ -165,7 +165,35 @@ Matter.Events.on( engine, 'afterUpdate', function () {
     }
 });
 
-// Website Display
+// ---------------------------
+//      Horizontal Motion
+// ---------------------------
+const horizontalMotion = {
+    minX: 600,
+    maxX: 870,
+    speed: 2.2,
+    dir: 1
+};
+
+Matter.Events.on( engine, 'beforeUpdate', function() {
+    const x = ground3.position.x;
+    let nextX = x + horizontalMotion.speed * horizontalMotion.dir;
+
+    if ( nextX < horizontalMotion.minX ) { nextX = horizontalMotion.minX; horizontalMotion.dir = 1; }
+    if ( nextX > horizontalMotion.maxX ) { nextX = horizontalMotion.maxX; horizontalMotion.dir = -1; }
+
+    const dx = nextX - x;
+    if ( dx === 0 ) return;
+
+    Matter.Body.translate( ground3, { x: dx, y: 0} );
+    Matter.Body.translate( sensor3, { x: dx, y: 0 } );
+    Matter.Composite.translate( stack3, { x:dx, y: 0 } );
+});
+
+
+// --------------------------
+//      Website Display
+// --------------------------
 Matter.World.add( engine.world, [
     // Stacks
     stack, stack2, stack3,
