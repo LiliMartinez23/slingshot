@@ -13,8 +13,12 @@ let render = Matter.Render.create({
     }
 });
 
-// Platform
-let ground = Matter.Bodies.rectangle( 870, 440, 230, 20, { isStatic: true} );
+// Platform 1
+let ground = Matter.Bodies.rectangle( 890, 440, 230, 20, { isStatic: true} );
+// Platform 2
+let ground2 = Matter.Bodies.rectangle( 590, 500, 230, 20, { isStatic: true} );
+// Platform 3
+let ground3 = Matter.Bodies.rectangle( 735, 160, 130, 20, { isStatic: true} );
 
 // Ball and Sling
 let ball = Matter.Bodies.circle( 300, 500, 20, { label: 'playerBall' } );
@@ -34,10 +38,21 @@ let mouseConstraint = Matter.MouseConstraint.create( engine, {
 });
 render.mouse = mouse;
 
-// Stack
-let stack = Matter.Composites.stack( 800, 270, 4, 4, 0, 0, function( x, y ) {
+// Stack 1
+let stack = Matter.Composites.stack( 815, 270, 4, 4, 0, 0, function( x, y ) {
     return Matter.Bodies.polygon( x, y, 8, 20 );
 });
+stack.label = 'Stack 1';
+// Stack 2
+let stack2 = Matter.Composites.stack( 515, 270, 4, 4, 0, 0, function( x, y ) {
+    return Matter.Bodies.polygon( x, y, 8, 20 );
+});
+stack2.label = 'Stack 2';
+// Stack 3
+let stack3 = Matter.Composites.stack( 700, 60, 2, 2, 0, 0, function( x, y ) {
+    return Matter.Bodies.polygon( x, y, 8, 18 );
+});
+stack3.label = 'Stack 3';
 
 // Firing
 let firing = false;
@@ -54,65 +69,76 @@ Matter.Events.on( engine, 'afterUpdate', function() {
     }
 });
 
-// Winner Modal
-const gb = ground.bounds;
-const groundWidth = gb.max.x - gb.min.x;
-
-// Sensor
-const sensor = Matter.Bodies.rectangle(
-    (gb.min.x + gb.max.x) / 2,
-    gb.min.y - 6,
-    groundWidth,
-    12,
-    {
-        isStatic: true,
-        isSensor: true,
-        render: { visible: false }
-    }
-);
+// -----------------------
+//      Winner Modal
+// -----------------------
+function makePlatformSensor( platformBody, name ) {
+    const b = platformBody.bounds;
+    const width = b.max.x - b.min.x;
+    return Matter.Bodies.rectangle(
+        (b.min.x + b.max.x) / 2,
+        b.min.y - 6,
+        width,
+        12,
+        { isStatic: true, isSensor: true, render: { visible: false }, label: name }
+    );
+}
+const sensor1 = makePlatformSensor( ground, 'Sensor 1');
+const sensor2 = makePlatformSensor( ground2, 'Sensor 2' );
+const sensor3 = makePlatformSensor( ground3, 'Sensor 3' );
+const sensors = new Set([ sensor1, sensor2, sensor3 ]);
 
 // Tracker
 const targetsOn = new Set();
 const ballsOn = new Set();
-const targetIds = new Set( stack.bodies.map( b => b.id) );
+
+const allTargetIds = new Set([
+    ...stack.bodies.map( b => b.id ),
+    ...stack2.bodies.map( b => b.id ),
+    ...stack3.bodies.map( b => b.id ),
+]);
 
 function addIfRelevant( body ) {
-    if ( targetIds.has( body.id ) ) targetsOn.add( body.id );
+    if ( allTargetIds.has( body.id ) ) targetsOn.add( body.id );
     if ( body.label === 'playerBall' ) ballsOn.add( body.id );
 }
-
 function removeIfRelevant( body ) {
-    if ( targetIds.has( body.id ) ) targetsOn.delete( body.id );
+    if ( allTargetIds.has( body.id ) ) targetsOn.delete( body.id );
     if ( body.label === 'playerBall' ) ballsOn.delete( body.id );
 }
 
 // Listen for collisions
 Matter.Events.on( engine, 'collisionStart', ( evt ) => {
     for ( const pair of evt.pairs ) {
-        if ( pair.bodyA === sensor ) addIfRelevant( pair.bodyB );
-        else if ( pair.bodyB === sensor ) addIfRelevant( pair.bodyA );
+        const { bodyA, bodyB } = pair;
+        if ( sensors.has( bodyA ) ) addIfRelevant( bodyB );
+        else if ( sensors.has( bodyB )) addIfRelevant( bodyA );
     }
 });
 Matter.Events.on( engine, 'collisionEnd', ( evt ) => {
     for ( const pair of evt.pairs ) {
-        if ( pair.bodyA === sensor ) removeIfRelevant( pair.bodyB );
-        else if ( pair.bodyB === sensor ) removeIfRelevant( pair.bodyA );
+        const { bodyA, bodyB } = pair;
+        if ( sensors.has( bodyA ) ) removeIfRelevant( bodyB );
+        else if ( sensors.has( bodyB ) ) removeIfRelevant( bodyA );
     }
 });
-
-// Seed
 Matter.Events.on( engine, 'afterUpdate', function seedOnce() {
     Matter.Events.off( engine, 'afterUpdate', seedOnce );
-    const initial = Matter.Query.collides( sensor, stack.bodies );
-    for ( const p of initial ) {
-        const other = p.bodyA === sensor ? p.bodyB : p.bodyA;
-        addIfRelevant( other );
+    const stacks = [ stack, stack2, stack3 ];
+    const platformSensors = [ sensor1, sensor2, sensor3 ];
+    for ( const s of stacks ) {
+        for ( const sens of platformSensors ) {
+            const inital = Matter.Query.collides( sens, s.bodies );
+            for ( const p of initial ) {
+                const other = p.bodyA === sens ? p.bodyB : p.bodyA;
+                addIfRelevant( other );
+            }
+        }
     }
 });
 
 // Winner Check
 let hasWon = false;
-
 function showWinnerModal() {
     const modal = document.getElementById( 'winnerModal' );
     if ( !modal ) return;
@@ -129,11 +155,10 @@ function showWinnerModal() {
         window.location.href = 'index.html';
     });
 }
-
 Matter.Events.on( engine, 'afterUpdate', function () {
     if ( !hasWon ) {
-        const isPlatformEmpty = targetsOn.size === 0;
-        if ( isPlatformEmpty ) {
+        const allPlatformsEmpty = targetsOn.size === 0;
+        if ( allPlatformsEmpty ) {
             hasWon = true;
             showWinnerModal();
         }
@@ -141,6 +166,15 @@ Matter.Events.on( engine, 'afterUpdate', function () {
 });
 
 // Website Display
-Matter.World.add( engine.world, [ stack, ground, sensor, ball, sling, mouseConstraint ] );
+Matter.World.add( engine.world, [
+    // Stacks
+    stack, stack2, stack3,
+    // Platforms
+    ground, ground2, ground3,
+    // Sensors
+    sensor1, sensor2, sensor3,
+    // Player & controls
+    ball, sling, mouseConstraint 
+]);
 Matter.Engine.run( engine );
 Matter.Render.run( render );
