@@ -27,6 +27,21 @@ let sling = Matter.Constraint.create({
     bodyB: ball,
     stiffness: 0.05
 });
+//  # of shots
+const MAX_TRIES = 10;
+let shotLeft = MAX_TRIES;
+const triesCounter = document.getElementById('triesCounter');
+function positionTriesCounter() {
+    if (!triesCounter) return;
+    triesCounter.style.left = (sling.pointA.x - 80) + 'px';
+    triesCounter.style.top = (sling.pointA.y + 45) + 'px';
+}
+function updateTriesCounter() {
+    if (!triesCounter) return;
+    triesCounter.textContent = `${shotLeft}`;
+}
+positionTriesCounter();
+updateTriesCounter();
 
 // Mouse
 let mouse = Matter.Mouse.create( render.canvas );
@@ -57,14 +72,19 @@ stack3.label = 'Stack 3';
 // Firing
 let firing = false;
 Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
-    if ( e.body === ball ) firing = true;
+    if ( e.body === ball && shotLeft > 0 ) {
+        firing = true;
+        shotLeft--;
+        updateTriesCounter();
+    }
 });
 Matter.Events.on( engine, 'afterUpdate', function() {
-    if ( firing && Math.abs( ball.position.x - 300) < 20 && Math.abs( ball.position.y - 500 ) < 20 ) {
+    if ( firing && shotLeft > 0 && Math.abs( ball.position.x - 300 ) < 20 && Math.abs( ball.position.y - 500 ) < 20 ) {
         ball = Matter.Bodies.circle( 300, 500, 20, { label: 'playerBall' } );
-        // Adding new ball after firing
         Matter.World.add( engine.world, ball );
         sling.bodyB = ball;
+        firing = false;
+    } else if ( firing && shotLeft === 0 ) {
         firing = false;
     }
 });
