@@ -114,9 +114,7 @@ Matter.Events.on( engine, 'afterUpdate', function() {
     }
 });
 
-// -----------------------
-//      Winner Modal
-// -----------------------
+
 const gb = ground.bounds;
 const groundWidth = gb.max.x - gb.min.x;
 // Sensor
@@ -167,8 +165,10 @@ Matter.Events.on( engine, 'afterUpdate', function seedOnce() {
     }
 });
 
-// Winner Check
 let hasWon = false;
+let hasLost = false;
+
+// Winner Modal
 function showWinnerModal() {
     const modal = document.getElementById( 'winnerModal' );
     if ( !modal ) return;
@@ -185,15 +185,41 @@ function showWinnerModal() {
         window.location.href = 'index.html';
     });
 }
+// Loser Modal
+function showLostModal() {
+    const modal = document.getElementById( 'lostModal' );
+    if ( !modal ) return;
+    engine.timing.timeScale = 0;
+    modal.classList.add( 'show' );
+
+    modal.querySelector( '#playAgainBtnLost' )?.addEventListener( 'click', () => {
+        window.location.reload();
+    });
+    modal.querySelector( '#newLevelBtnLost' )?.addEventListener( 'click', () => {
+        window.location.href = 'index.html';
+    });
+    modal.querySelector( '#quitBtnLost' )?.addEventListener( 'click', () => {
+        window.location.href = 'index.html';
+    });
+}
+
+// Winner / Loser checks
 Matter.Events.on( engine, 'afterUpdate', function () {
     if ( !hasWon ) {
         const isPlatformEmpty = targetsOn.size === 0;
         if ( isPlatformEmpty ) {
             hasWon = true;
             showWinnerModal();
+            return;
         }
     }
+
+    if ( !hasLost && !hasWon && shotLeft === 0 ) {
+        hasLost = true;
+        showLostModal();
+    }
 });
+
 
 // Website Display
 Matter.World.add( engine.world, [ stack, ground, sensor, ball, sling, mouseConstraint ] );
