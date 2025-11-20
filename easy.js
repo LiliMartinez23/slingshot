@@ -19,7 +19,7 @@ let ground = Matter.Bodies.rectangle( 870, 440, 230, 20, { isStatic: true} );
 // Ball and Sling
 let ball = Matter.Bodies.circle( 300, 500, 20, { label: 'playerBall' } );
 
-const MAX_PULL = 10;
+const MAX_PULL = 120;
 let sling = Matter.Constraint.create({
     pointA: { x: 300, y: 500 },
     bodyB: ball,

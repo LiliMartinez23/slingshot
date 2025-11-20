@@ -41,6 +41,11 @@ function updateTriesCounter() {
 positionTriesCounter();
 updateTriesCounter();
 
+// Reset button
+document.getElementById('resetBtn')?.addEventListener('click', () => {
+    window.location.reload();
+});
+
 // Mouse
 let mouse = Matter.Mouse.create( render.canvas );
 let mouseConstraint = Matter.MouseConstraint.create( engine, {
