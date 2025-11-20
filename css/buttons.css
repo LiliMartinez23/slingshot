@@ -44,7 +44,8 @@
     align-items: center;
 }
 
-.backBtn {
+.backBtn,
+.resetBtn {
     width: 150px;
     height: 40px;
     border: solid 3px #000;

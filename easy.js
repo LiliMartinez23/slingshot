@@ -18,6 +18,8 @@ let ground = Matter.Bodies.rectangle( 870, 440, 230, 20, { isStatic: true} );
 
 // Ball and Sling
 let ball = Matter.Bodies.circle( 300, 500, 20, { label: 'playerBall' } );
+
+const MAX_PULL = 120;
 let sling = Matter.Constraint.create({
     pointA: { x: 300, y: 500 },
     bodyB: ball,
@@ -29,8 +31,8 @@ let shotLeft = MAX_TRIES;
 const triesCounter = document.getElementById('triesCounter');
 function positionTriesCounter() {
     if (!triesCounter) return;
-    triesCounter.style.left = (sling.pointA.x - 80) + 'px';
-    triesCounter.style.top = (sling.pointA.y + 45) + 'px';
+    triesCounter.style.left = (sling.pointA.x - 150) + 'px';
+    triesCounter.style.top = (sling.pointA.y - 250) + 'px';
 }
 function updateTriesCounter() {
     if (!triesCounter) return;
@@ -38,6 +40,11 @@ function updateTriesCounter() {
 }
 positionTriesCounter();
 updateTriesCounter();
+
+// Reset button
+document.getElementById('resetBtn')?.addEventListener('click', () => {
+    window.location.reload();
+});
 
 // Mouse
 let mouse = Matter.Mouse.create( render.canvas );
@@ -56,11 +63,44 @@ let stack = Matter.Composites.stack( 800, 270, 4, 4, 0, 0, function( x, y ) {
 
 // Firing
 let firing = false;
+let dragBall = false;
+Matter.Events.on( mouseConstraint, 'startdrag', function( e ) {
+    if ( e.body === ball ) {
+        dragBall = true;
+    }
+});
 Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
+    if ( e.body === ball ) {
+        dragBall = false;
+    }
     if ( e.body === ball && shotLeft > 0 ) {
         firing = true;
         shotLeft--;
         updateTriesCounter();
+    }
+});
+
+Matter.Events.on( engine, 'beforeUpdate', function() {
+    if ( !dragBall ) return;
+
+    const anchor = sling.pointA;
+    const ax = anchor.x;
+    const ay = anchor.y;
+    const bx = ball.position.x;
+    const by = ball.position.y;
+
+    const dx = bx - ax;
+    const dy = by - ay;
+    const dist = Math.sqrt( dx * dx + dy * dy );
+
+    if ( dist > MAX_PULL ) {
+        const scale = MAX_PULL / dist;
+        const clampedX = ax + dx * scale;
+        const clampedY = ay + dy * scale;
+
+        Matter.Body.setPosition( ball, { x: clampedX, y: clampedY } );
+
+        Matter.Body.setVelocity( ball, { x: 0, y: 0 } );
     }
 });
 Matter.Events.on( engine, 'afterUpdate', function() {
@@ -74,9 +114,7 @@ Matter.Events.on( engine, 'afterUpdate', function() {
     }
 });
 
-// -----------------------
-//      Winner Modal
-// -----------------------
+
 const gb = ground.bounds;
 const groundWidth = gb.max.x - gb.min.x;
 // Sensor
@@ -127,8 +165,10 @@ Matter.Events.on( engine, 'afterUpdate', function seedOnce() {
     }
 });
 
-// Winner Check
 let hasWon = false;
+let hasLost = false;
+
+// Winner Modal
 function showWinnerModal() {
     const modal = document.getElementById( 'winnerModal' );
     if ( !modal ) return;
@@ -145,15 +185,41 @@ function showWinnerModal() {
         window.location.href = 'index.html';
     });
 }
+// Loser Modal
+function showLostModal() {
+    const modal = document.getElementById( 'lostModal' );
+    if ( !modal ) return;
+    engine.timing.timeScale = 0;
+    modal.classList.add( 'show' );
+
+    modal.querySelector( '#playAgainBtnLost' )?.addEventListener( 'click', () => {
+        window.location.reload();
+    });
+    modal.querySelector( '#newLevelBtnLost' )?.addEventListener( 'click', () => {
+        window.location.href = 'index.html';
+    });
+    modal.querySelector( '#quitBtnLost' )?.addEventListener( 'click', () => {
+        window.location.href = 'index.html';
+    });
+}
+
+// Winner / Loser checks
 Matter.Events.on( engine, 'afterUpdate', function () {
     if ( !hasWon ) {
         const isPlatformEmpty = targetsOn.size === 0;
         if ( isPlatformEmpty ) {
             hasWon = true;
             showWinnerModal();
+            return;
         }
     }
+
+    if ( !hasLost && !hasWon && shotLeft === 0 ) {
+        hasLost = true;
+        showLostModal();
+    }
 });
+
 
 // Website Display
 Matter.World.add( engine.world, [ stack, ground, sensor, ball, sling, mouseConstraint ] );
