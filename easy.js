@@ -23,9 +23,10 @@ let sling = Matter.Constraint.create({
     bodyB: ball,
     stiffness: 0.05
 });
-//  # of shots
+//  Number of shots
 const MAX_TRIES = 20;
 let shotLeft = MAX_TRIES;
+
 const triesCounter = document.getElementById('triesCounter');
 function positionTriesCounter() {
     if (!triesCounter) return;
@@ -54,12 +55,12 @@ let mouseConstraint = Matter.MouseConstraint.create( engine, {
 });
 render.mouse = mouse;
 
-// Stack
+// Stack of polygons
 let stack = Matter.Composites.stack( 800, 270, 4, 4, 0, 0, function( x, y ) {
     return Matter.Bodies.polygon( x, y, 8, 20 );
 });
 
-// Firing
+// Firing mechanism
 let firing = false;
 
 Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
@@ -145,6 +146,7 @@ function showWinnerModal() {
     const modal = document.getElementById( 'winnerModal' );
     if ( !modal ) return;
     engine.timing.timeScale = 0;
+
     modal.classList.add( 'show' );
 
     document.getElementById( 'playAgainBtn' )?.addEventListener( 'click', () => {
