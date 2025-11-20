@@ -33,8 +33,8 @@ let shotLeft = MAX_TRIES;
 const triesCounter = document.getElementById('triesCounter');
 function positionTriesCounter() {
     if (!triesCounter) return;
-    triesCounter.style.left = (sling.pointA.x - 80) + 'px';
-    triesCounter.style.top = (sling.pointA.y + 45) + 'px';
+    triesCounter.style.left = (sling.pointA.x - 150) + 'px';
+    triesCounter.style.top = (sling.pointA.y - 250) + 'px';
 }
 function updateTriesCounter() {
     if (!triesCounter) return;
