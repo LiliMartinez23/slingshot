@@ -18,8 +18,6 @@ let ground = Matter.Bodies.rectangle( 870, 440, 230, 20, { isStatic: true} );
 
 // Ball and Sling
 let ball = Matter.Bodies.circle( 300, 500, 20, { label: 'playerBall' } );
-
-const MAX_PULL = 120;
 let sling = Matter.Constraint.create({
     pointA: { x: 300, y: 500 },
     bodyB: ball,
@@ -63,16 +61,8 @@ let stack = Matter.Composites.stack( 800, 270, 4, 4, 0, 0, function( x, y ) {
 
 // Firing
 let firing = false;
-let dragBall = false;
-Matter.Events.on( mouseConstraint, 'startdrag', function( e ) {
-    if ( e.body === ball ) {
-        dragBall = true;
-    }
-});
+
 Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
-    if ( e.body === ball ) {
-        dragBall = false;
-    }
     if ( e.body === ball && shotLeft > 0 ) {
         firing = true;
         shotLeft--;
@@ -80,31 +70,13 @@ Matter.Events.on( mouseConstraint, 'enddrag', function( e ) {
     }
 });
 
-Matter.Events.on( engine, 'beforeUpdate', function() {
-    if ( !dragBall ) return;
-
-    const anchor = sling.pointA;
-    const ax = anchor.x;
-    const ay = anchor.y;
-    const bx = ball.position.x;
-    const by = ball.position.y;
-
-    const dx = bx - ax;
-    const dy = by - ay;
-    const dist = Math.sqrt( dx * dx + dy * dy );
-
-    if ( dist > MAX_PULL ) {
-        const scale = MAX_PULL / dist;
-        const clampedX = ax + dx * scale;
-        const clampedY = ay + dy * scale;
-
-        Matter.Body.setPosition( ball, { x: clampedX, y: clampedY } );
-
-        Matter.Body.setVelocity( ball, { x: 0, y: 0 } );
-    }
-});
 Matter.Events.on( engine, 'afterUpdate', function() {
-    if ( firing && shotLeft > 0 && Math.abs( ball.position.x - 300 ) < 20 && Math.abs( ball.position.y - 500 ) < 20 ) {
+    if (
+        firing &&
+        shotLeft > 0 &&
+        Math.abs( ball.position.x - 300 ) < 20 &&
+        Math.abs( ball.position.y - 500 ) < 20
+    ) {
         ball = Matter.Bodies.circle( 300, 500, 20, { label: 'playerBall' } );
         Matter.World.add( engine.world, ball );
         sling.bodyB = ball;
